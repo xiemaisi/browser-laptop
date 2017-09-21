@@ -5,7 +5,8 @@
 'use strict'
 
 const {responseHasContent} = require('./httpUtil')
-const moment = require('moment')
+const format = require('date-fns/format')
+const distanceInWordsToNow = require('date-fns/distance_in_words_to_now')
 
 /**
  * Is page an actual page being viewed by the user? (not an error page, etc)
@@ -70,13 +71,11 @@ module.exports.btcToCurrencyString = (btc, ledgerData) => {
 }
 
 module.exports.formattedTimeFromNow = (timestamp) => {
-  moment.locale(navigator.language)
-  return moment(new Date(timestamp)).fromNow()
+  return distanceInWordsToNow(new Date(timestamp), {locale: navigator.language})
 }
 
-module.exports.formattedDateFromTimestamp = (timestamp, format) => {
-  moment.locale(navigator.language)
-  return moment(new Date(timestamp)).format(format)
+module.exports.formattedDateFromTimestamp = (timestamp, dateFormat) => {
+  return format(new Date(timestamp), dateFormat, {locale: navigator.language})
 }
 
 module.exports.walletStatus = (ledgerData) => {

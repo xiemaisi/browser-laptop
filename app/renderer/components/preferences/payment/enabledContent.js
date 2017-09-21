@@ -4,7 +4,7 @@
 
 const React = require('react')
 const {StyleSheet, css} = require('aphrodite/no-important')
-const moment = require('moment')
+const addDays = require('date-fns/add_days')
 
 // util
 const {btcToCurrencyString, formattedDateFromTimestamp, walletStatus} = require('../../../../common/lib/ledgerUtil')
@@ -141,7 +141,7 @@ class EnabledContent extends ImmutableComponent {
     let l10nDataId = 'statusNextReconcileDate'
 
     if (!nextReconcileDateRelative) {
-      nextReconcileDateRelative = formattedDateFromTimestamp(moment().add(1, 'months'), 'MMMM Do')
+      nextReconcileDateRelative = formattedDateFromTimestamp(addDays(1, 30), 'MMMM Do')
     } else {
       const timestamp = ledgerData.get('reconcileStamp')
       const now = new Date().getTime()

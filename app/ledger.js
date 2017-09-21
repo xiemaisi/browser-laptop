@@ -46,7 +46,7 @@ const session = electron.session
 
 const acorn = require('acorn')
 const levelup = require('level')
-const moment = require('moment')
+const format = require('date-fns/format')
 const qr = require('qr-image')
 const querystring = require('querystring')
 const random = require('random-lib')
@@ -350,7 +350,7 @@ var reset = (doneP) => {
  */
 
 var backupKeys = (appState, action) => {
-  const date = moment().format('L')
+  const date = format(new Date(), 'MM/DD/YYYY')
   const paymentId = appState.getIn(['ledgerInfo', 'paymentId'])
   const passphrase = appState.getIn(['ledgerInfo', 'passphrase'])
 

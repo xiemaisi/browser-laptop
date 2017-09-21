@@ -4,7 +4,7 @@
 
 const base64Encode = require('../../../js/lib/base64').encode
 const underscore = require('underscore')
-const moment = require('moment')
+const format = require('date-fns/format')
 
 /**
  * Generates a contribution breakdown by publisher as a CSV data URL from an array of one or more transactions
@@ -323,7 +323,7 @@ module.exports.addExportFilenamePrefixToTransactions = (transactions) => {
   return transactions.map(function (transaction) {
     const timestamp = transaction.submissionStamp
 
-    let numericDateStr = moment(new Date(timestamp)).format('YYYY-MM-DD')
+    let numericDateStr = format(new Date(timestamp), 'YYYY-MM-DD')
 
     let dateCount = (dateCountMap[numericDateStr] ? dateCountMap[numericDateStr] : 1)
     dateCountMap[numericDateStr] = dateCount + 1
