@@ -280,31 +280,50 @@ if (chrome.contentSettings.canvasFingerprinting == 'block') {
     methodName: 'navigator.mediaDevices.enumerateDevices'
   })
 
-  chrome.webFrame.setGlobal("window.__braveBlockingProxy", allPurposeProxy())
+  chrome.webFrame.setGlobal("window.__braveBlockingProxy", allPurposeProxy)
+  chrome.webFrame.setGlobal("window.__braveReportBlock", reportBlock.bind(this, 'Iframe'))
 
   // Prevent access to frames' contentDocument / contentWindow
   // properties, to prevent the parent frame from pulling unblocked
   // references to blocked standards from injected frames.
   // This may break some sites, but, fingers crossed, its not too much.
-  var pageScriptToInject = `
-    (function () {
-        var frameTypesToModify = [window.HTMLIFrameElement, window.HTMLFrameElement]
-        var propertiesToBlock = ["contentDocument", "contentWindow"]
-        var proxyObject = window.__braveBlockingProxy
-        delete window.__braveBlockingProxy
-        var returnProxyGetter = {
-          get: function () {
-            return proxyObject
-          }
+  var pageScriptToInject = function () {
+    var frameTypesToModify = [window.HTMLIFrameElement, window.HTMLFrameElement]
+    var propertiesToBlock = ['HTMLCanvasElement',
+      'WebGLRenderingContext',
+      'WebGL2RenderingContext',
+      'CanvasRenderingContext2D',
+      'AudioBuffer',
+      'AnalyserNode',
+      'SVGPathElement',
+      'SVGTextContentElement',
+      'webkitRTCPeerConnection',
+      'navigator']
+
+    var proxyObject = window.__braveBlockingProxy
+    delete window.__braveBlockingProxy
+
+    var handler = {
+      get: function (target, name) {
+        if (propertiesToBlock.includes(name)) {
+          // Trigger canvas fingerprinting block
+          window.__braveReportBlock()
+          return proxyObject
         }
+        return target[name]
+      }
+    }
 
-        frameTypesToModify.forEach(function (frameType) {
-          propertiesToBlock.forEach(function (propertyName) {
-            Object.defineProperty(frameType.prototype, propertyName, returnProxyGetter)
-          })
-        })
-    }())
-  `
+    frameTypesToModify.forEach(function (frameType) {
+      Object.defineProperty(frameType.prototype, 'contentWindow', {
+        get: () => {
+          // XXX: this breaks contentWindow.postMessage since the target window
+          // is now the parent window
+          return new Proxy(window, handler)
+        }
+      })
+    })
+  }
 
-  chrome.webFrame.executeJavaScript(pageScriptToInject)
+  chrome.webFrame.executeJavaScript(`(${pageScriptToInject.toString()})()`)
 }
