@@ -106,8 +106,20 @@ if (chrome.contentSettings.canvasFingerprinting == 'block') {
     return undefined
   }
 
+  var callCounter = 0
+
   var allPurposeProxy = new Proxy(defaultFunc, {
     get: function (target, property) {
+
+      // If the proxy has been called a large number of times on this page,
+      // it might be stuck in an loop.  To prevent locking up the page,
+      // return undefined to break the loop, and then resume the normal
+      // behavior on subsequent calls.
+      if (callCounter > 1000) {
+        callCounter = 0
+        return undefined
+      }
+      callCounter += 1
 
       if (property === Symbol.toPrimitive) {
         return valueOfCoercionFunc
@@ -267,4 +279,32 @@ if (chrome.contentSettings.canvasFingerprinting == 'block') {
     type: 'WebRTC',
     methodName: 'navigator.mediaDevices.enumerateDevices'
   })
+
+  chrome.webFrame.setGlobal("window.__braveBlockingProxy", allPurposeProxy())
+
+  // Prevent access to frames' contentDocument / contentWindow
+  // properties, to prevent the parent frame from pulling unblocked
+  // references to blocked standards from injected frames.
+  // This may break some sites, but, fingers crossed, its not too much.
+  var pageScriptToInject = `
+    (function () {
+        var frameTypesToModify = [window.HTMLIFrameElement, window.HTMLFrameElement]
+        var propertiesToBlock = ["contentDocument", "contentWindow"]
+        var proxyObject = window.__braveBlockingProxy
+        delete window.__braveBlockingProxy
+        var returnProxyGetter = {
+          get: function () {
+            return proxyObject
+          }
+        }
+
+        frameTypesToModify.forEach(function (frameType) {
+          propertiesToBlock.forEach(function (propertyName) {
+            Object.defineProperty(frameType.prototype, propertyName, returnProxyGetter)
+          })
+        })
+    }())
+  `
+
+  chrome.webFrame.executeJavaScript(pageScriptToInject)
 }
