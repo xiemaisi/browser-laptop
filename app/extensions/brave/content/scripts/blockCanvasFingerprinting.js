@@ -322,6 +322,11 @@ if (chrome.contentSettings.canvasFingerprinting == 'block') {
           return new Proxy(window, handler)
         }
       })
+      Object.defineProperty(frameType.prototype, 'contentDocument', {
+        get: () => {
+          return new Proxy(document, handler)
+        }
+      })
     })
   }
 
