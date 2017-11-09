@@ -302,12 +302,13 @@ if (chrome.contentSettings.canvasFingerprinting == 'block') {
 
     var proxyObject = window.__braveBlockingProxy
     delete window.__braveBlockingProxy
+    var reportBlock = window.__braveReportBlock
+    delete window.__braveReportBlock
 
     var handler = {
       get: function (target, name) {
         if (propertiesToBlock.includes(name)) {
-          // Trigger canvas fingerprinting block
-          window.__braveReportBlock()
+          reportBlock()
           return proxyObject
         }
         return target[name]
