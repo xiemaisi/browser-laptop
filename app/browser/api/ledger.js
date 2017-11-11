@@ -189,13 +189,11 @@ const promptForRecoveryKeyFile = () => {
     files = [defaultRecoveryKeyFilePath]
   } else {
     const dialog = electron.dialog
-    files = dialog.showOpenDialog({
-      properties: ['openFile'],
+    files = dialog.showDialog({
+      type: 'select-open-file',
       defaultPath: defaultRecoveryKeyFilePath,
-      filters: [{
-        name: 'TXT files',
-        extensions: ['txt']
-      }]
+      extensions: [['txt']],
+      includeAllFiles: false
     })
   }
 
