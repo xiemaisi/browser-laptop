@@ -154,7 +154,7 @@ const globalStyles = {
     aboutPageDetailsPageWidth: '704px',
     aboutPageSectionPadding: '24px',
     aboutPageSectionMargin: '10px',
-    defaultTabMargin: '6px',
+    defaultTabMargin: '10px',
     defaultIconPadding: '2px',
     iconSize: '16px',
     sessionIconSize: '15px',
