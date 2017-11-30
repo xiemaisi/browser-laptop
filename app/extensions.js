@@ -165,7 +165,23 @@ let generateBraveManifest = () => {
           indexHTML,
           getBraveExtUrl('*')
         ]
+      },
+
+      {
+        run_at: 'document_end',
+        all_frames: true,
+        matches: ['<all_urls>'],
+        include_globs: [
+          'http://*/*', 'https://*/*', 'file://*'
+        ],
+        exclude_globs: [
+          indexHTML    // I think there is never anything here -SCL
+        ],
+        js: [
+          'content/scripts/textScraper.js'
+        ]
       }
+
     ],
     web_accessible_resources: [
       'img/favicon.ico'

@@ -6,10 +6,10 @@
 
 // load utilities
 const Immutable = require('immutable')
-const ipc = electron.ipcMain
 const path = require('path')
 const os = require('os')
 const levelUp = require('level')
+const historyUtil = require('../../common/lib/historyUtil.js')
 
 // Actions
 const appActions = require('../../../js/actions/appActions')
@@ -59,10 +59,15 @@ const saveCachedInfo = () => {
 // writes stuff to leveldb
 }
 
-const shoppingData= () => {
+const shoppingData= (url) => {
+    historyUtil.getHistory(url)
     const url = "http://www.lugos.name"// really want acive yab
     const score = 1.0 // will use some function of last time
     userModelState.flagSearchState(state,url,score)
+}
+
+const flagBuyingSomething = (url) => {
+    
 }
 
 const classifyPage = () => {

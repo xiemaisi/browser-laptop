@@ -3,15 +3,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-//if(chrome.contentSettings.BATads == "on") {
-if(1=1) {
+if(chrome.contentSettings.BATads == "allow") {
  const headers = Array.from(document.querySelectorAll('h1, h2, h3, h4'))
  const body =  Array.from(document.querySelectorAll('p'))
-//replace(/<\/p>/ig, '\n');
  console.log(body)
- 
+    chrome.ipcRenderer.send('dispatch-action', JSON.stringify([{
+        actionType: 'app-text-scraper-data-available',
+        headers,
+        body
+    }])) 
 }
 
 
-// TODO clean, push somewhere
-// possibly stem, tokenize here
+// TODO clean  possibly stem, tokenize here
